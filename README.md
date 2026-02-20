@@ -1,1 +1,1 @@
-# swostika-quiz
+# index.html
