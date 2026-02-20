@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Well Do You Know Ayush? 💛</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fffaf3;
+    --warm: #f4a261;
+    --deep: #e76f51;
+    --accent: #2a9d8f;
+    --soft: #fde8d0;
+    --text: #2b2315;
+    --muted: #9a7e6a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* floating bg shapes */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 10% 15%, #fde8d088 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 90% 80%, #2a9d8f18 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 80% 10%, #f4a26122 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative; z-index: 1;
+  }
+
+  /* INTRO SCREEN */
+  #intro {
+    text-align: center;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .emoji-big {
+    font-size: 72px;
+    display: block;
+    margin-bottom: 16px;
+    animation: bounce 2s ease infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.15;
+    margin-bottom: 12px;
+    color: var(--deep);
+  }
+
+  h1 span { font-style: italic; color: var(--warm); }
+
+  .subtitle {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .btn {
+    display: inline-block;
+    background: var(--deep);
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px #e76f5155;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 28px #e76f5177; }
+  .btn:active { transform: translateY(0); }
+
+  .btn-accent {
+    background: var(--accent);
+    box-shadow: 0 6px 20px #2a9d8f44;
+  }
+  .btn-accent:hover { box-shadow: 0 10px 28px #2a9d8f66; }
+
+  /* QUIZ SCREEN */
+  #quiz { display: none; }
+
+  .progress-bar-wrap {
+    background: #f0e6da;
+    border-radius: 20px;
+    height: 8px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--warm), var(--deep));
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
+
+  .q-counter {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .q-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: 0 4px 24px #0000000a, 0 1px 4px #0000000a;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+
+  .option {
+    background: var(--soft);
+    border: 2.5px solid transparent;
+    border-radius: 16px;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .option:hover:not(.disabled) {
+    border-color: var(--warm);
+    transform: translateX(4px);
+  }
+  .option.correct {
+    background: #d4f4ee;
+    border-color: var(--accent);
+    color: #1a7a6e;
+  }
+  .option.wrong {
+    background: #fde8e8;
+    border-color: #e05555;
+    color: #c03030;
+  }
+  .option.disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-height: 24px;
+    color: var(--accent);
+  }
+  .feedback.wrong-text { color: #c03030; }
+
+  .next-btn-wrap { margin-top: 24px; text-align: right; }
+
+  /* RESULT SCREEN */
+  #result { display: none; text-align: center; }
+
+  .result-card {
+    background: #fff;
+    border-radius: 28px;
+    padding: 40px 32px;
+    box-shadow: 0 4px 32px #0000000f;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--warm), var(--deep));
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 8px 24px #e76f5166;
+  }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    color: var(--deep);
+    margin-bottom: 12px;
+  }
+
+  .result-msg {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .confetti-emoji {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 16px;
+    animation: spin 1s ease-in-out;
+  }
+  @keyframes spin {
+    from { transform: rotate(-20deg) scale(0.5); opacity: 0; }
+    to { transform: rotate(0deg) scale(1); opacity: 1; }
+  }
+
+  .love-note {
+    background: linear-gradient(135deg, #fff8f0, #fde8d0);
+    border-left: 4px solid var(--warm);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-style: italic;
+    color: var(--muted);
+    margin-top: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .chip {
+    background: var(--soft);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--deep);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- INTRO -->
+  <div id="intro">
+    <span class="emoji-big">🌸</span>
+    <h1>How well do you know<br><span>Ayush</span>? 💛</h1>
+    <p class="subtitle">
+      A little quiz made just for you, Swostika!<br>
+      From your new friend Ayush — to make you smile 😊
+    </p>
+    <div class="chips">
+      <span class="chip">🍜 Jhol Momo</span>
+      <span class="chip">⛰️ Mountains</span>
+      <span class="chip">😄 Khai, Uiss!</span>
+    </div>
+    <button class="btn" onclick="startQuiz()">Let's Play! 🎉</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="q-counter" id="qCounter"></div>
+    <div class="q-card" id="qCard">
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="optionsWrap"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="next-btn-wrap">
+        <button class="btn btn-accent" id="nextBtn" onclick="nextQuestion()" style="display:none">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result">
+    <div class="result-card">
+      <span class="confetti-emoji" id="resultEmoji">🎊</span>
+      <div class="score-circle" id="scoreCircle"></div>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="love-note">
+        "Thanks for being my friend, Swostika. Even as a new friend, you already feel like one of the good ones. Hope this made you smile! — Ayush 💛"
+      </div>
+      <br>
+      <button class="btn" onclick="restartQuiz()">Play Again 🔄</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    q: "What is Ayush's favourite thing about you? 😄",
+    options: ["That you always say 'Khai, Uiss!'", "Your love for jhol momo", "Your mountain vibes", "All of the above honestly"],
+    correct: 3,
+    correctMsg: "Hehe obviously — it's everything! 🥰",
+    wrongMsg: "Well... it's actually ALL of the above! 💛"
+  },
+  {
+    q: "If Ayush had to take you somewhere to cheer you up, where would it be?",
+    options: ["A fancy restaurant in the city", "A mountain trek with a view ⛰️", "A momo shop nearby 🍜", "A movie theatre"],
+    correct: 2,
+    correctMsg: "Jhol momo fixes everything — Ayush knows! 🍜",
+    wrongMsg: "Jhol momo is the answer to everything, Swostika! 🍜"
+  },
+  {
+    q: "What does Ayush think you'd say if he surprised you with plans?",
+    options: ["Oh wow, really?!", "Khai, sounds fun!", "Uiss, let me think about it...", "Nah I'm busy"],
+    correct: 1,
+    correctMsg: "'Khai!' — classic Swostika response 😂",
+    wrongMsg: "It's definitely 'Khai!' — your signature word! 😂"
+  },
+  {
+    q: "What's your idea of a perfect day? (Ayush's guess 👀)",
+    options: ["Sleeping all day at home", "Trekking in the mountains with good company 🏔️", "Eating jhol momo in a cozy place", "Both B and C honestly"],
+    correct: 3,
+    correctMsg: "Mountains + momos = Swostika's paradise! 🏔️🍜",
+    wrongMsg: "Ayush thinks it's mountains + momos combined! 🏔️🍜"
+  },
+  {
+    q: "If Swostika was a season, she'd be...",
+    options: ["Hot summer — full of energy", "Rainy season — deep and cozy", "Spring — fresh and cheerful 🌸", "Winter — calm and cool"],
+    correct: 2,
+    correctMsg: "Spring energy — fresh, cheerful, and lovely! 🌸",
+    wrongMsg: "Ayush thinks you're Spring — fresh and full of life! 🌸"
+  },
+  {
+    q: "What does Ayush wish for you every single day? 💛",
+    options: ["Fame and money", "A plate of jhol momo", "Good vibes, good health, and genuine happiness 😊", "A mountain to climb"],
+    correct: 2,
+    correctMsg: "Always — genuine happiness for you, Swostika! 💛",
+    wrongMsg: "It's the happiness one — always. 💛"
+  },
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+
+  const q = questions[current];
+  document.getElementById('qCounter').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progressBar').style.width = `${(current / questions.length) * 100}%`;
+
+  const wrap = document.getElementById('optionsWrap');
+  wrap.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    wrap.appendChild(btn);
+  });
+
+  // re-animate card
+  const card = document.getElementById('qCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'fadeUp 0.4s ease both';
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[current];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.classList.add('disabled'));
+
+  const fb = document.getElementById('feedback');
+  if (idx === q.correct) {
+    opts[idx].classList.add('correct');
+    score++;
+    fb.textContent = '✅ ' + q.correctMsg;
+    fb.className = 'feedback';
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    fb.textContent = '❌ ' + q.wrongMsg;
+    fb.className = 'feedback wrong-text';
+  }
+
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('scoreCircle').textContent = `${score}/${questions.length}`;
+
+  let emoji, title, msg;
+  if (score === questions.length) {
+    emoji = '🏆'; title = 'You know Ayush perfectly!';
+    msg = `${pct}%! Swostika, you're literally his best quiz-passer! You know him (and his feelings for your friendship) so well. 💛`;
+  } else if (score >= 4) {
+    emoji = '🌸'; title = 'Pretty great friends already!';
+    msg = `${pct}%! Not bad for new friends! Ayush is impressed — and very happy you're in his life. 😊`;
+  } else if (score >= 2) {
+    emoji = '😄'; title = 'Still learning each other!';
+    msg = `${pct}% — but that's okay! The best part of new friendships is still getting to know each other. More jhol momo hangouts needed! 🍜`;
+  } else {
+    emoji = '🤭'; title = 'Room to grow together!';
+    msg = `Haha Swostika! ${score} out of ${questions.length}? Ayush says that just means more time needed together — mountains and momos await! ⛰️🍜`;
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultMsg').textContent = msg;
+}
+
+function restartQuiz() {
+  current = 0; score = 0;
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  loadQuestion();
+}
+</script>
+</body>
+</html>
